@@ -1,10 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
-import 'package:sqflite/sqlite_api.dart';
 import 'package:todo/Todo.dart';
 import 'package:todo/TodoDetail.dart';
-import 'package:todo/database_helper.dart';
 
 class TodoList extends StatefulWidget {
   @override
@@ -14,16 +12,15 @@ class TodoList extends StatefulWidget {
 
 class TodoListState extends State<TodoList> {
 
-  final databaseHelper = DatabaseHelper();
   List<Todo> todoList;
   int count = 0;
 
   @override
   Widget build(BuildContext context) {
-    if (todoList == null) {
-      todoList = List<Todo>();
-      updateListView();
-    }
+    // if (todoList == null) {
+    //   todoList = List<Todo>();
+    //   updateListView();
+    // }
     return _buildBody(context);
   }
 
@@ -70,18 +67,18 @@ class TodoListState extends State<TodoList> {
     );
   }
   navigateToDetail(Todo todo, String title) async {
-    bool result = await Navigator.push(context, MaterialPageRoute(builder: (context) {
+    await Navigator.push(context, MaterialPageRoute(builder: (context) {
       return TodoDetail(todo, title);
     }));
-    // if (result == true) {
-    //   updateListView();
-    // }
   }
 
   getFirstLetter(String title) => title.substring(0, 2);
 
   _delete(BuildContext context, Todo todo) async {
-
+    final logger = Logger();
+    logger.e(">><>>", todo.id);
+    final todoReference = Firestore.instance;
+    await todoReference.collection('Todo').document(todo.id.toString()).delete();
   }
 
   _showSnackbar(BuildContext context, String message) {
@@ -123,36 +120,7 @@ class TodoListState extends State<TodoList> {
 
   _buildListItem(DocumentSnapshot data) {
     final todo = Todo.fromSnapshot(data);
-    Logger().e('>>>>>');
-
-    return Card(
-      color: Colors.white,
-      elevation: 2.0,
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: Colors.amber,
-          child: Text(getFirstLetter(todo.title),
-          style: TextStyle(fontWeight: FontWeight.bold),),
-        ),
-        title: Text(todo.title, style: TextStyle(fontWeight: FontWeight.bold),),
-        subtitle: Text(todo.description),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            GestureDetector(
-              child: Icon(Icons.delete, color: Colors.red),
-              onTap: () {
-                _delete(context, todo);
-              },
-            )
-          ],
-        ),
-        onTap: () {
-          debugPrint('Called');
-          navigateToDetail(todo, 'Edit Todo');
-        },
-      ),
-    );
+    return _buildRow(todo);
   }
 
 }

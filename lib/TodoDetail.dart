@@ -1,9 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:logger/logger.dart';
 import 'package:todo/Todo.dart';
-import 'package:todo/database_helper.dart';
 
 class TodoDetail extends StatefulWidget {
 
@@ -18,7 +16,6 @@ class TodoDetail extends StatefulWidget {
 }
 
 class TodoDetailState extends State<TodoDetail> {
-  DatabaseHelper helper = DatabaseHelper();
 
 	String appBarTitle;
 	Todo todo;
@@ -31,8 +28,8 @@ class TodoDetailState extends State<TodoDetail> {
   Widget build(BuildContext context) {
     TextStyle textStyle = Theme.of(context).textTheme.title;
 
-		titleController.text = todo.title;
-		descriptionController.text = todo.description;
+		// titleController.text = todo.title;
+		// descriptionController.text = todo.description;
 
     return WillPopScope(
       onWillPop: () {
@@ -161,55 +158,31 @@ class TodoDetailState extends State<TodoDetail> {
 
 	// Save data to database
 	void _save() async {
-
-		// moveToLastScreen();
-
-
-		// todo.date = DateFormat.yMMMd().format(DateTime.now());
-		// int result;
-		// if (todo.id != null) {
-    //     // Case 1: Update operation
-		// 	result = await helper.updateTodo(todo);
-		// } else { // Case 2: Insert Operation
-		// 	result = await helper.insertTodo(todo);
-		// }
-
-		// if (result != 0) {  // Success
-		// 	_showAlertDialog('Status', 'Todo Saved Successfully');
-		// } else {  // Failure
-		// 	_showAlertDialog('Status', 'Problem Saving Todo');
-		// }
-
+    moveToLastScreen();
+    final todoReference = Firestore.instance;
+    await todoReference.collection('Todo').document()
+        .setData({'title': todo.title, 'description': todo.description});
+    _showAlertDialog('Status', 'Todo Saved Successfully');
 	}
 
 
 	void _delete() async {
 
-		// moveToLastScreen();
-
-		// if (todo.id == null) {
-		// 	_showAlertDialog('Status', 'No Todo was deleted');
-		// 	return;
-		// }
-
-		// int result = await helper.deleteTodo(todo.id);
-		// if (result != 0) {
-		// 	_showAlertDialog('Status', 'Todo Deleted Successfully');
-		// } else {
-		// 	_showAlertDialog('Status', 'Error Occured while Deleting Todo');
-		// }
+		moveToLastScreen();
+    final todoReference = Firestore.instance;
+    await todoReference.collection('Todo').document(todo.id.toString()).delete();
 	}
 
 	void _showAlertDialog(String title, String message) {
 
-		// AlertDialog alertDialog = AlertDialog(
-		// 	title: Text(title),
-		// 	content: Text(message),
-		// );
-		// showDialog(
-		// 		context: context,
-		// 		builder: (_) => alertDialog
-		// );
+		AlertDialog alertDialog = AlertDialog(
+			title: Text(title),
+			content: Text(message),
+		);
+		showDialog(
+				context: context,
+				builder: (_) => alertDialog
+		);
 	}
 
 }
