@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
 import 'package:todo/Todo.dart';
 import 'package:uuid/uuid.dart';
 
@@ -30,11 +29,10 @@ class TodoDetailState extends State<TodoDetail> {
   @override
   Widget build(BuildContext context) {
     TextStyle textStyle = Theme.of(context).textTheme.title;
-    final logger = Logger();
-    logger.e(todo.id);
 
 		titleController.text = todo.title;
 		descriptionController.text = todo.description;
+
 
     return WillPopScope(
       onWillPop: () {
@@ -110,8 +108,9 @@ class TodoDetailState extends State<TodoDetail> {
 							    ),
 
 							    Container(width: 5.0,),
-
-							    Expanded(
+                  Visibility(
+                    visible: todo.id == null ? false : true,
+                    child: Expanded(
 								    child: RaisedButton(
 									    color: Theme.of(context).primaryColorDark,
 									    textColor: Theme.of(context).primaryColorLight,
@@ -126,6 +125,7 @@ class TodoDetailState extends State<TodoDetail> {
 									    },
 								    ),
 							    ),
+                  )
 
 						    ],
 					    ),
@@ -136,6 +136,7 @@ class TodoDetailState extends State<TodoDetail> {
 
     ));
   }
+
 
   void moveToLastScreen() {
 		Navigator.pop(context, true);
@@ -180,18 +181,6 @@ class TodoDetailState extends State<TodoDetail> {
 		moveToLastScreen();
     final todoReference = Firestore.instance;
     await todoReference.collection('Todo').document(todo.reference.documentID).delete();
-	}
-
-	void _showAlertDialog(String title, String message) {
-
-		AlertDialog alertDialog = AlertDialog(
-			title: Text(title),
-			content: Text(message),
-		);
-		showDialog(
-				context: context,
-				builder: (_) => alertDialog
-		);
 	}
 
 }
