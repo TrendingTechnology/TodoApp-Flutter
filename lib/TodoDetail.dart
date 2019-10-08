@@ -28,6 +28,8 @@ class TodoDetailState extends State<TodoDetail> {
   @override
   Widget build(BuildContext context) {
     TextStyle textStyle = Theme.of(context).textTheme.title;
+    final logger = Logger();
+    logger.e(todo.title);
 
 		titleController.text = todo.title;
 		descriptionController.text = todo.description;
@@ -126,8 +128,6 @@ class TodoDetailState extends State<TodoDetail> {
 						    ],
 					    ),
 				    ),
-
-
 			    ],
 		    ),
 	    ),
@@ -151,13 +151,28 @@ class TodoDetailState extends State<TodoDetail> {
 
 	// Save data to database
 	void _save() async {
-    moveToLastScreen();
-    final todoReference = Firestore.instance;
-    if( todo.title.length > 1 && todo.description.length > 1) {
-    await todoReference.collection('Todo').document()
-        .setData({'title': todo.title, 'description': todo.description});
+    if (todo.title.isEmpty) {
+      final todoReference = Firestore.instance;
+      if( todo.title.length > 1 && todo.description.length > 1) {
+      moveToLastScreen();
+      await todoReference.collection('Todo').document()
+          .setData({'title': todo.title, 'description': todo.description});
+      } else {
+        // final snackbar = SnackBar(content: Text('You cannot save an Empty file'));
+        // Scaffold.of(context).showSnackBar(snackbar);
+      }
     } else {
-      
+      final logger = Logger();
+      logger.e('fff');
+      final todoReference = Firestore.instance;
+      if( todo.title.length > 1 && todo.description.length > 1) {
+      moveToLastScreen();
+      await todoReference.collection('Todo').document(todo.reference.documentID)
+          .updateData({'title': todo.title, 'description': todo.description});
+      } else {
+        // final snackbar = SnackBar(content: Text('You cannot save an Empty file'));
+        // Scaffold.of(context).showSnackBar(snackbar);
+      }
     }
     // _showAlertDialog('Status', 'Todo Saved Successfully');
 	}

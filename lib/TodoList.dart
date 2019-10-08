@@ -91,19 +91,6 @@ class TodoListState extends State<TodoList> {
       // )
     }
 
-  updateListView() {
-    // final Future<Database> dbFuture = databaseHelper.initializeDatabase();
-    // dbFuture.then((database) {
-    //   Future<List<Todo>> todoListFuture = databaseHelper.getTodoList();
-    //   todoListFuture.then((todoList) {
-    //     setState(() {
-    //       this.todoList = todoList;
-    //       this.count = todoList.length;
-    //     });
-    //   });
-    // });
-
-  }
   _buildList(BuildContext context, List<DocumentSnapshot> snapshot) {
     return Scaffold(
       appBar: AppBar(
