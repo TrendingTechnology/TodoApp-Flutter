@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:todo/Todo.dart';
 
 class TodoDetail extends StatefulWidget {
@@ -28,8 +29,8 @@ class TodoDetailState extends State<TodoDetail> {
   Widget build(BuildContext context) {
     TextStyle textStyle = Theme.of(context).textTheme.title;
 
-		// titleController.text = todo.title;
-		// descriptionController.text = todo.description;
+		titleController.text = todo.title;
+		descriptionController.text = todo.description;
 
     return WillPopScope(
       onWillPop: () {
@@ -64,9 +65,6 @@ class TodoDetailState extends State<TodoDetail> {
 						    decoration: InputDecoration(
 							    labelText: 'Title',
 							    labelStyle: textStyle,
-							    border: OutlineInputBorder(
-								    borderRadius: BorderRadius.circular(5.0)
-							    )
 						    ),
 					    ),
 				    ),
@@ -83,9 +81,6 @@ class TodoDetailState extends State<TodoDetail> {
 						    decoration: InputDecoration(
 								    labelText: 'Description',
 								    labelStyle: textStyle,
-								    border: OutlineInputBorder(
-										    borderRadius: BorderRadius.circular(5.0)
-								    )
 						    ),
 					    ),
 				    ),
@@ -99,12 +94,11 @@ class TodoDetailState extends State<TodoDetail> {
 									    color: Theme.of(context).primaryColorDark,
 									    textColor: Theme.of(context).primaryColorLight,
 									    child: Text(
-										    'Save',
+										    todo.title.isEmpty ? 'Save': 'Edit',
 										    textScaleFactor: 1.5,
 									    ),
 									    onPressed: () {
 									    	setState(() {
-									    	  debugPrint("Save button clicked");
 									    	  _save();
 									    	});
 									    },
@@ -123,7 +117,6 @@ class TodoDetailState extends State<TodoDetail> {
 									    ),
 									    onPressed: () {
 										    setState(() {
-											    debugPrint("Delete button clicked");
 											    _delete();
 										    });
 									    },
@@ -160,17 +153,20 @@ class TodoDetailState extends State<TodoDetail> {
 	void _save() async {
     moveToLastScreen();
     final todoReference = Firestore.instance;
+    if( todo.title.length > 1 && todo.description.length > 1) {
     await todoReference.collection('Todo').document()
         .setData({'title': todo.title, 'description': todo.description});
-    _showAlertDialog('Status', 'Todo Saved Successfully');
+    } else {
+      
+    }
+    // _showAlertDialog('Status', 'Todo Saved Successfully');
 	}
 
 
 	void _delete() async {
-
 		moveToLastScreen();
     final todoReference = Firestore.instance;
-    await todoReference.collection('Todo').document(todo.id.toString()).delete();
+    await todoReference.collection('Todo').document(todo.reference.documentID).delete();
 	}
 
 	void _showAlertDialog(String title, String message) {

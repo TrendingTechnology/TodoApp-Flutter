@@ -75,15 +75,20 @@ class TodoListState extends State<TodoList> {
   getFirstLetter(String title) => title.substring(0, 2);
 
   _delete(BuildContext context, Todo todo) async {
-    final logger = Logger();
-    logger.e(">><>>", todo.id);
     final todoReference = Firestore.instance;
-    await todoReference.collection('Todo').document(todo.id.toString()).delete();
+    await todoReference.collection('Todo').document(todo.reference.documentID).delete();
+    // _showSnackbar(context, 'Todo deleted');
   }
 
   _showSnackbar(BuildContext context, String message) {
-    final snackbar = SnackBar(content: Text(message),);
+    final snackbar = SnackBar(content: Text(message));
       Scaffold.of(context).showSnackBar(snackbar);
+      // Scaffold(
+      //   appBar: AppBar(
+      //     title: Text('Snackbar Demo'),
+      //   ),
+      //   body: ,
+      // )
     }
 
   updateListView() {
