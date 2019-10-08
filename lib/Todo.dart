@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Todo {
-  int _id;
+  String _id;
   String _title;
   String _description;
   String _date;
@@ -10,7 +10,7 @@ class Todo {
   Todo(this._title, this._date, this._description, this.reference);
 
 
-  int get id => _id;
+  String get id => _id;
   String get title => _title;
   String get description => _description;
   String get date => _date;

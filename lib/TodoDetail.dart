@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:todo/Todo.dart';
+import 'package:uuid/uuid.dart';
 
 class TodoDetail extends StatefulWidget {
 
@@ -25,11 +26,12 @@ class TodoDetailState extends State<TodoDetail> {
 	TextEditingController descriptionController = TextEditingController();
 
 	TodoDetailState(this.todo, this.appBarTitle);
+
   @override
   Widget build(BuildContext context) {
     TextStyle textStyle = Theme.of(context).textTheme.title;
     final logger = Logger();
-    logger.e(todo.title);
+    logger.e(todo.id);
 
 		titleController.text = todo.title;
 		descriptionController.text = todo.description;
@@ -96,12 +98,12 @@ class TodoDetailState extends State<TodoDetail> {
 									    color: Theme.of(context).primaryColorDark,
 									    textColor: Theme.of(context).primaryColorLight,
 									    child: Text(
-										    todo.title.isEmpty ? 'Save': 'Edit',
+										    todo.id == null ? 'Save' : 'Edit',
 										    textScaleFactor: 1.5,
 									    ),
 									    onPressed: () {
 									    	setState(() {
-									    	  _save();
+									    	   todo.id == null ? _save() : _update();
 									    	});
 									    },
 								    ),
@@ -151,31 +153,27 @@ class TodoDetailState extends State<TodoDetail> {
 
 	// Save data to database
 	void _save() async {
-    if (todo.title.isEmpty) {
       final todoReference = Firestore.instance;
+      final uid = new Uuid();
+      String id = uid.v1();
       if( todo.title.length > 1 && todo.description.length > 1) {
       moveToLastScreen();
       await todoReference.collection('Todo').document()
-          .setData({'title': todo.title, 'description': todo.description});
+          .setData({'id': id,'title': todo.title, 'description': todo.description});
       } else {
         // final snackbar = SnackBar(content: Text('You cannot save an Empty file'));
         // Scaffold.of(context).showSnackBar(snackbar);
       }
-    } else {
-      final logger = Logger();
-      logger.e('fff');
-      final todoReference = Firestore.instance;
-      if( todo.title.length > 1 && todo.description.length > 1) {
+	}
+
+  void _update() async {
+    if(todo.title.length > 1 && todo.description.length > 1) {
       moveToLastScreen();
+      final todoReference = Firestore.instance;
       await todoReference.collection('Todo').document(todo.reference.documentID)
           .updateData({'title': todo.title, 'description': todo.description});
-      } else {
-        // final snackbar = SnackBar(content: Text('You cannot save an Empty file'));
-        // Scaffold.of(context).showSnackBar(snackbar);
-      }
     }
-    // _showAlertDialog('Status', 'Todo Saved Successfully');
-	}
+  }
 
 
 	void _delete() async {
